@@ -1,0 +1,4 @@
+PyMuPDF==1.19.6
+python-docx=0.8.11
+pytesseract==0.3.9
+jieba==0.42.1
