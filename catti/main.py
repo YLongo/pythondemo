@@ -5,6 +5,9 @@ from datetime import datetime
 import pytesseract
 import jieba
 import re
+# import nltk
+from nltk.stem import SnowballStemmer
+from nltk.corpus import stopwords
 
 # pdf and docx directory
 file_input_dir = r"${file_input_dir}"
@@ -13,10 +16,12 @@ file_input_dir = r"${file_input_dir}"
 image_output = r"${image_output}"
 
 # text output directory
-text_output = r"${text_output}"
+# text_output = r"${text_output}"
+text_output = r"D:\BaiduNetdiskDownload\CATTI\text"
 
 # image ocr output directory
-image_2_text_output = r"${image_2_text_output}"
+# image_2_text_output = r"${image_2_text_output}"
+image_2_text_output = r"D:\BaiduNetdiskDownload\CATTI\image2text"
 
 
 def recoverpix(doc, item):
@@ -188,6 +193,8 @@ def cut_words(text):
         if r in stopwords or r.isdigit():
             continue
 
+        if not r.isalpha():
+            continue
         # remove chinese characters
         if re.search(u'[\u4e00-\u9fff]', r):
             continue
@@ -198,7 +205,8 @@ def cut_words(text):
 
 
 def nlp_output():
-    nlp_output = r'${nlp_output}'
+    # nlp_output = r'${nlp_output}'
+    nlp_output = r'D:\BaiduNetdiskDownload\CATTI\nlp'
     nlp_output_file = os.path.join(nlp_output, 'output.txt')
 
     full_file_path_list = []
@@ -282,9 +290,58 @@ def save_to_youdao_dict():
     word_convert_xml(word_count, output_path)
 
 
+from nltk.stem import WordNetLemmatizer
+import nltk
+from nltk import tokenize
+from nltk.corpus import stopwords
+
 if __name__ == "__main__":
     # extract_text_and_img(file_input_dir)
     # extract_from_docx(file_input_dir)
     # extract_from_pdf(file_input_01)
     # ocr_text(image_output)
-    print()
+    # nlp_output()
+
+    # nltk.download('stopwords')
+
+    input_put_text = r'D:\BaiduNetdiskDownload\CATTI\nlp\output.txt'
+    clean_output_text = r'D:\BaiduNetdiskDownload\CATTI\nlp\clean_output.txt'
+
+    # stemmer = SnowballStemmer("english", ignore_stopwords=True)
+
+    lemmatizer = WordNetLemmatizer()
+    stop_words = stopwords.words('english')
+
+    print(stop_words)
+
+    print(lemmatizer.lemmatize("keeps"))
+
+    with open(input_put_text, 'r', encoding='utf-8') as f:
+        # words = f.readlines()
+        word = f.read()
+        words = word.split('\n')
+
+        clean_words = set()
+        for w in words:
+            if w in stop_words:
+                continue
+            clean_word = lemmatizer.lemmatize(w)
+            if clean_word in stop_words:
+                continue
+            clean_words.add(clean_word + '\n')
+
+        with open(clean_output_text, 'a', encoding='utf-8') as f:
+            f.writelines(clean_words)
+
+    # nltk.download('wordnet')
+    # nltk.download('omw-1.4')
+    # nltk.download('punkt')
+
+    # tokens = tokenize.word_tokenize("stopwords")
+    # for token in tokens:
+
+
+    # if stem in words:
+    #     print("yes")
+    # print(stem)
+    # print()
