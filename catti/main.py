@@ -17,11 +17,11 @@ image_output = r"${image_output}"
 
 # text output directory
 # text_output = r"${text_output}"
-text_output = r"D:\BaiduNetdiskDownload\CATTI\text"
+text_output = r"D:\CATTI\text"
 
 # image ocr output directory
 # image_2_text_output = r"${image_2_text_output}"
-image_2_text_output = r"D:\BaiduNetdiskDownload\CATTI\image2text"
+image_2_text_output = r"D:\CATTI\image2text"
 
 
 def recoverpix(doc, item):
@@ -174,8 +174,8 @@ def ocr_text(file_path):
 
 
 def stopwordslist(filepath):
-    return [line.strip() for line in open(filepath, 'r', encoding='utf-8').readlines() if
-            not line.strip().startswith('#')]
+    return [line.strip() for line in open(filepath, 'r', encoding='utf-8').readlines()
+            if not line.strip().startswith('#')]
 
 
 def cut_words(text):
@@ -206,7 +206,7 @@ def cut_words(text):
 
 def nlp_output():
     # nlp_output = r'${nlp_output}'
-    nlp_output = r'D:\BaiduNetdiskDownload\CATTI\nlp'
+    nlp_output = r'D:\CATTI\nlp'
     nlp_output_file = os.path.join(nlp_output, 'output.txt')
 
     full_file_path_list = []
@@ -273,7 +273,7 @@ def save_to_youdao_dict():
     """
     save word list to youdao dict
     """
-    input_path = r'${input_path}'
+    input_path = r'D:\CATTI\nlp\clean_output.txt'
     word_count = {}
 
     with open(input_path, 'r', encoding='utf-8') as words:
@@ -286,14 +286,100 @@ def save_to_youdao_dict():
 
     sorted(word_count, key=word_count.get, reverse=True)
 
-    output_path = r'${output_path}'
+    output_path = r'D:\CATTI\nlp'
     word_convert_xml(word_count, output_path)
+
+
+def get_wordnet_pos(tag):
+    if tag.startswith('J'):
+        return wordnet.ADJ
+    elif tag.startswith('V'):
+        return wordnet.VERB
+    elif tag.startswith('N'):
+        return wordnet.NOUN
+    elif tag.startswith('R'):
+        return wordnet.ADV
+    else:
+        # print("tag:" + tag)
+        return None
+
+
+def nltk_lemm():
+
+    # nltk.download('wordnet')
+    # nltk.download('omw-1.4')
+    # nltk.download('punkt')
+    # nltk.download('stopwords')
+    # nltk.download('averaged_perceptron_tagger')
+
+    input_put_text = r'D:\CATTI\nlp\catti.txt'
+    clean_output_text = r'D:\CATTI\nlp\clean_output.txt'
+
+    # stemmer = SnowballStemmer("english", ignore_stopwords=True)
+
+    lemmatizer = WordNetLemmatizer()
+    stop_words = stopwords.words('english')
+
+    stop_words += stopwordslist('stopwords.txt')
+    print(stop_words)
+
+    # tags = nltk.pos_tag(["ofturkeys"])
+    # tag = tags[0]
+    # print(tags)
+    # print(lemmatizer.lemmatize(tag[0], get_wordnet_pos(tag[1])))
+    #
+    # tags = nltk.pos_tag(["abandoned"])
+    # tag = tags[0]
+    # print(tags)
+    # print(lemmatizer.lemmatize(tag[0], get_wordnet_pos(tag[1])))
+
+    print("--- --- ---")
+
+    clean_words = set()
+
+    with open(input_put_text, 'r', encoding='utf-8') as f:
+        words = f.readlines()
+
+        for w in words:
+            w = w.strip()
+            if len(w) <= 1:
+                continue
+
+            if not w.isalpha():
+                continue
+
+            if w in stop_words:
+                continue
+
+            clean_words.add(w)
+
+    lemm_word_set = set()
+
+    for word in clean_words:
+
+        tags = nltk.pos_tag([word])
+        tag = tags[0]
+
+        pos = get_wordnet_pos(tag[1])
+        if pos is None:
+            lemmatize = lemmatizer.lemmatize(tag[0])
+            lemm_word_set.add(lemmatize + '\n')
+            continue
+
+        lemmatize = lemmatizer.lemmatize(tag[0], pos)
+        lemm_word_set.add(lemmatize + '\n')
+
+    clean_words_list = sorted(lemm_word_set)
+
+    with open(clean_output_text, 'w', encoding='utf-8') as f:
+        f.writelines(clean_words_list)
 
 
 from nltk.stem import WordNetLemmatizer
 import nltk
 from nltk import tokenize
 from nltk.corpus import stopwords
+from nltk.corpus import wordnet
 
 if __name__ == "__main__":
     # extract_text_and_img(file_input_dir)
@@ -301,47 +387,8 @@ if __name__ == "__main__":
     # extract_from_pdf(file_input_01)
     # ocr_text(image_output)
     # nlp_output()
-
-    # nltk.download('stopwords')
-
-    input_put_text = r'D:\BaiduNetdiskDownload\CATTI\nlp\output.txt'
-    clean_output_text = r'D:\BaiduNetdiskDownload\CATTI\nlp\clean_output.txt'
-
-    # stemmer = SnowballStemmer("english", ignore_stopwords=True)
-
-    lemmatizer = WordNetLemmatizer()
-    stop_words = stopwords.words('english')
-
-    print(stop_words)
-
-    print(lemmatizer.lemmatize("keeps"))
-
-    with open(input_put_text, 'r', encoding='utf-8') as f:
-        # words = f.readlines()
-        word = f.read()
-        words = word.split('\n')
-
-        clean_words = set()
-        for w in words:
-            if w in stop_words:
-                continue
-            clean_word = lemmatizer.lemmatize(w)
-            if clean_word in stop_words:
-                continue
-            clean_words.add(clean_word + '\n')
-
-        with open(clean_output_text, 'a', encoding='utf-8') as f:
-            f.writelines(clean_words)
-
-    # nltk.download('wordnet')
-    # nltk.download('omw-1.4')
-    # nltk.download('punkt')
-
-    # tokens = tokenize.word_tokenize("stopwords")
-    # for token in tokens:
+    save_to_youdao_dict()
+    # nltk_lemm()
+    print()
 
 
-    # if stem in words:
-    #     print("yes")
-    # print(stem)
-    # print()
