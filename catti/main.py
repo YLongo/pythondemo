@@ -1,20 +1,21 @@
 import os.path
-import fitz
-from docx import Document
-from datetime import datetime
-import pytesseract
-import jieba
 import re
-# import nltk
-from nltk.stem import SnowballStemmer
+from datetime import datetime
+
+import fitz
+import jieba
+import nltk
+import pytesseract
+from docx import Document
 from nltk.corpus import stopwords
+from nltk.corpus import wordnet
+from nltk.stem import WordNetLemmatizer
+import youdao_parser
 
 # pdf and docx directory
 file_input_dir = r"${file_input_dir}"
-
 # image output directory
 image_output = r"${image_output}"
-
 # text output directory
 # text_output = r"${text_output}"
 text_output = r"D:\CATTI\text"
@@ -305,7 +306,6 @@ def get_wordnet_pos(tag):
 
 
 def nltk_lemm():
-
     # nltk.download('wordnet')
     # nltk.download('omw-1.4')
     # nltk.download('punkt')
@@ -375,11 +375,27 @@ def nltk_lemm():
         f.writelines(clean_words_list)
 
 
-from nltk.stem import WordNetLemmatizer
-import nltk
-from nltk import tokenize
-from nltk.corpus import stopwords
-from nltk.corpus import wordnet
+def query_youdao():
+    input_text = r'D:\CATTI\nlp\clean_output.txt'
+    api = youdao_parser.API
+    youdao_output_text = r'D:\CATTI\nlp\youdao_output.txt'
+    youdao_words = set()
+    count = 0
+    with open(input_text, mode='r') as f:
+        lines = f.readlines()
+
+        for line in lines:
+            queryResult = api.query(line.strip())
+            definition_ = queryResult['definition']
+            if definition_:
+                youdao_words.add(line)
+
+            count += 1
+            if count % 1000 == 0:
+                print(count)
+    with open(youdao_output_text, mode='w') as f:
+        f.writelines(youdao_words)
+
 
 if __name__ == "__main__":
     # extract_text_and_img(file_input_dir)
@@ -387,8 +403,16 @@ if __name__ == "__main__":
     # extract_from_pdf(file_input_01)
     # ocr_text(image_output)
     # nlp_output()
-    save_to_youdao_dict()
+    # save_to_youdao_dict()
     # nltk_lemm()
+    # query_youdao()
+
+    youdao_output_text = r'D:\CATTI\nlp\youdao_output.txt'
+    with open(youdao_output_text, mode='r') as f:
+        lines = f.readlines()
+
+        sorted_lines = sorted(lines)
+        with open(youdao_output_text, mode='w') as f:
+            f.writelines(sorted_lines)
+    # extract_from_pdf(file_input_01)
     print()
-
-
