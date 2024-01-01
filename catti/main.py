@@ -11,6 +11,7 @@ from nltk.corpus import stopwords
 from nltk.corpus import wordnet
 from nltk.stem import WordNetLemmatizer
 import youdao_parser
+from ECDICT import stardict
 
 # pdf and docx directory
 file_input_dir = r"${file_input_dir}"
@@ -376,9 +377,9 @@ def nltk_lemm():
 
 
 def query_youdao():
-    input_text = r'D:\CATTI\nlp\clean_output.txt'
+    input_text = r'./output.txt'
     api = youdao_parser.API
-    youdao_output_text = r'D:\CATTI\nlp\youdao_output.txt'
+    youdao_output_text = r'./CATTI/youdao_output.txt'
     youdao_words = set()
     count = 0
     with open(input_text, mode='r') as f:
@@ -396,6 +397,38 @@ def query_youdao():
     with open(youdao_output_text, mode='w') as f:
         f.writelines(youdao_words)
 
+def clean_with_ecdict():
+    input_text = r'./output.txt'
+    youdao_output_text = r'./CATTI/youdao_output.txt'
+    youdao_words = set()
+    count = 0
+
+    # clear data
+    with open(youdao_output_text, mode='w') as f:
+        pass
+
+    db = os.path.join(os.path.dirname(__file__), 'star_dict.db')
+    sd = stardict.StarDict(db, False)
+
+    with open(input_text, mode='r') as f:
+        lines = f.readlines()
+
+        for line in lines:
+            # csv_name = os.path.join(os.path.dirname(__file__), '../ECDICT/stardict.csv')
+            # dc = stardict.StarDict(csv_name)
+
+            line = line.strip()
+            query_result = sd.query(line)
+            if query_result:
+                youdao_words.add(line + '\n')
+
+            count += 1
+            if count % 1000 == 0:
+                print(count)
+
+    with open(youdao_output_text, mode='a') as f:
+        f.writelines(youdao_words)
+
 
 if __name__ == "__main__":
     # extract_text_and_img(file_input_dir)
@@ -407,12 +440,19 @@ if __name__ == "__main__":
     # nltk_lemm()
     # query_youdao()
 
-    youdao_output_text = r'D:\CATTI\nlp\youdao_output.txt'
-    with open(youdao_output_text, mode='r') as f:
-        lines = f.readlines()
-
-        sorted_lines = sorted(lines)
-        with open(youdao_output_text, mode='w') as f:
-            f.writelines(sorted_lines)
+    # youdao_output_text = r'D:\CATTI\nlp\youdao_output.txt'
+    # with open(youdao_output_text, mode='r') as f:
+    #     lines = f.readlines()
+    #
+    #     sorted_lines = sorted(lines)
+    #     with open(youdao_output_text, mode='w') as f:
+    #         f.writelines(sorted_lines)
     # extract_from_pdf(file_input_01)
-    print()
+
+    # just only exec once
+    # stardict.convert_dict('star_dict.db', '../ECDICT/stardict.csv')
+    clean_with_ecdict()
+    # db = os.path.join(os.path.dirname(__file__), 'star_dict.db')
+    # sd = stardict.StarDict(db, False)
+    # query_result = sd.query('brilliant')
+    # print(query_result)
