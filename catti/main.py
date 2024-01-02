@@ -237,6 +237,7 @@ def word_convert_xml(word_list, xml_dir):
     """
 
     xml_name = "youdao.xml"
+    tag = "CATTI"
 
     count = 0
     split_count = 0
@@ -256,9 +257,9 @@ def word_convert_xml(word_list, xml_dir):
 
         xml_file.write('<item>')
         xml_file.write('    <word>' + word + '</word>\n')
-        xml_file.write('    <trans>' + '<![CDATA[]]>' + '</trans>\n')
-        xml_file.write('    <tags>' + "${tag}" + '</tags>\n')  # 有道词典中的单词分组名
-        xml_file.write('    <progress>1</progress>\n')
+        # xml_file.write('    <trans>' + '<![CDATA[]]>' + '</trans>\n')
+        xml_file.write('    <tags>' + f"{tag}" + '</tags>\n')  # 有道词典中的单词分组名
+        xml_file.write('    <progress>0</progress>\n')
         xml_file.write('</item>')
 
         count += 1
@@ -275,7 +276,7 @@ def save_to_youdao_dict():
     """
     save word list to youdao dict
     """
-    input_path = r'D:\CATTI\nlp\clean_output.txt'
+    input_path = r'./CATTI/youdao_output.txt'
     word_count = {}
 
     with open(input_path, 'r', encoding='utf-8') as words:
@@ -288,7 +289,7 @@ def save_to_youdao_dict():
 
     sorted(word_count, key=word_count.get, reverse=True)
 
-    output_path = r'D:\CATTI\nlp'
+    output_path = r'./CATTI'
     word_convert_xml(word_count, output_path)
 
 
@@ -436,7 +437,7 @@ if __name__ == "__main__":
     # extract_from_pdf(file_input_01)
     # ocr_text(image_output)
     # nlp_output()
-    # save_to_youdao_dict()
+    save_to_youdao_dict()
     # nltk_lemm()
     # query_youdao()
 
@@ -451,8 +452,4 @@ if __name__ == "__main__":
 
     # just only exec once
     # stardict.convert_dict('star_dict.db', '../ECDICT/stardict.csv')
-    clean_with_ecdict()
-    # db = os.path.join(os.path.dirname(__file__), 'star_dict.db')
-    # sd = stardict.StarDict(db, False)
-    # query_result = sd.query('brilliant')
-    # print(query_result)
+    # clean_with_ecdict()
